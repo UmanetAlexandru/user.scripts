@@ -1,0 +1,1 @@
+let footer = document.querySelector(".msg-overlay-conversation-bubble--is-active footer")
