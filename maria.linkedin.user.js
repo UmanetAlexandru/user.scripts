@@ -1,3 +1,15 @@
+// ==UserScript==
+// @name         Maria Script
+// @namespace    https://github.com/UmanetAlexandru/user.scripts
+// @version      0.1
+// @description  Maria scrip linkedin.
+// @author       Alexandru Umaneț
+// @match        https://www.linkedin.com/messaging/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=linkedin.com
+// @grant        none
+// @run-at       document-end
+// @require      file://D:\projects\Personal\Scripts\maria.linkedin.user.js
+// ==/UserScript==
 const SCROLL_PEOPLE_LIST = 3;
 const SCROLL_MESSAGES_LIST = 3;
 const SCROLL_HEIGHT = 500;
