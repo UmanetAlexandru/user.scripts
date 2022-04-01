@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UShop Script
 // @namespace    https://github.com/UmanetAlexandru/user.scripts
-// @version      0.2
+// @version      0.4
 // @description  Script to copy UShop orders
 // @author       Alexandru Umaneț
 // @match        https://www.ushop.md/wp-admin/post.php?post=*
@@ -27,7 +27,10 @@
         parentEl.insertBefore(btn, beforeEl);
     }
 
-    const fullName = document.querySelector("p._billing_first_name_field input").getAttribute("value");
+    const date = document.querySelector("input[name=order_date]").getAttribute("value");
+    const firstName = document.querySelector("p._billing_first_name_field input").getAttribute("value");
+    const lastName = document.querySelector("p._billing_last_name_field input").getAttribute("value");
+    const fullName = `${firstName} ${lastName}`;
 
     //<--------------- CREATE COPY ORDER INFO BUTTON
     const supplierMap = {"SPM": "6PM", "ZP": "Zappos", "PMA": "Puma", "SPD": "SD", "JNB": "JNB"};
@@ -35,7 +38,6 @@
         .replace("Order ", "")
         .replace(" details", "")
         .trim();
-    const date = document.querySelector("input[name=order_date]").getAttribute("value");
     const itemEls = document.querySelectorAll("table.woocommerce_order_items tr.item");
 
     let orderInfo = "";
@@ -62,7 +64,7 @@
             const s = sku.split("_");
             return `https://www.zappos.com/product/${s[1]}/color/${s[2]}`;
         },
-        "PMA": (sku) => `https://pumamoldova.md/ro/shop${sku.replaceAll("_", "/").replace("PMA_", "")}`,
+        "PMA": (sku) => `https://pumamoldova.md/ro/shop/${sku.replace("PMA_", "").replaceAll("_", "/")}`,
         "SPD": (sku) => "https://www.sportsdirect.com/searchresults?descriptionfilter=" + sku.replace("SPD_", ""),
         "JNB": (sku) => {
             const s = sku.split("_");
@@ -75,7 +77,7 @@
         const link = skuFuncMap[sku.split("_")[0]](sku);
         el.onclick = () => window.open(link, "_blank");
         el.classList.add("page-title-action");
-        el.style.cssText += 'display:block;max-width:30%;';
+        el.style.cssText += 'display:block;width:fit-content;padding-bottom:0;padding-top:0;margin-left:0;';
     });
 
     //<--------------- CREATE COPY CUSTOMER INFO BUTTON
@@ -116,20 +118,15 @@
         "TL": "Telenești",
         "UN": "Ungheni"
     }
-    const fullNameSplit = fullName.split(" ");
-    const firstName = fullNameSplit[0];
-    const lastName = fullNameSplit[1] || "\t";
 
     const email = document.querySelector("._billing_email_field input").getAttribute("value");
     const cityCode = document.querySelector("._billing_state_field input").getAttribute("value");
     const address = document.querySelector("._billing_address_1_field input").getAttribute("value");
-    const phone = document.querySelector("._billing_phone_field input").getAttribute("value");
+    let phone = document.querySelector("._billing_phone_field input").getAttribute("value");
+    phone = '0' + phone.replace(/^\s*\+?(373)? ?0?/, "");
+    phone = phone.slice(0, 4) + ' ' + phone.slice(4, 6) + ' ' + phone.slice(6);
     const city = statesMap[cityCode];
 
-    const today = new Date();
-    const dd = String(today.getDate()).padStart(2, '0');
-    const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-    const todayDate = dd + '/' + mm + '/' + today.getFullYear();
-    const customerInfo = `${email}\t${firstName}\t${lastName}\t${todayDate}\t\t\t${city}\t\t${address}\t\t${phone}`;
+    const customerInfo = `${email}\t${firstName}\t${lastName}\t${date}\t\t\t${city}\t\t${address}\tSubscribed\t${phone}`;
     createCopyBtn("Copy Customer Info", customerInfo);
 })();
