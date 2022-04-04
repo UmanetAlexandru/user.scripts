@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UShop Script
 // @namespace    https://github.com/UmanetAlexandru/user.scripts
-// @version      0.4
+// @version      0.5
 // @description  Script to copy UShop orders
 // @author       Alexandru Umaneț
 // @match        https://www.ushop.md/wp-admin/post.php?post=*
@@ -40,6 +40,10 @@
         .trim();
     const itemEls = document.querySelectorAll("table.woocommerce_order_items tr.item");
 
+    const shippingTxt = document.querySelector(".shipping .edit input.wc_input_price").getAttribute("value");
+    const shipping = +shippingTxt.replace(',', '.');
+    const shippingPerItem = shipping / itemEls.length;
+
     let orderInfo = "";
     itemEls.forEach(itemEl => {
         const productName = itemEl.querySelector(".wc-order-item-name").textContent.trim();
@@ -48,8 +52,9 @@
             .split("_")[0]
         const supplier = supplierMap[supplierPrefix];
         const size = itemEl.querySelector(".view p").textContent.trim();
-        const price = itemEl.querySelector(".item_cost bdi").childNodes[0].textContent
-            .replace(",00 ", "").replace(".", "")
+        const price = +itemEl.querySelector(".item_cost bdi").childNodes[0].textContent
+            .replace(",00 ", "").replace(".", "") + shippingPerItem;
+
         orderInfo += `${number}\t${date}\t\t\t${productName}\t${size}\t${price}\t${supplier}\t${fullName}\n`;
     });
     createCopyBtn("Copy Order Info", orderInfo)
