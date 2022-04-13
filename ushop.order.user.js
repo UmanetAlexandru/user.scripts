@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UShop Script
 // @namespace    https://github.com/UmanetAlexandru/user.scripts
-// @version      0.5
+// @version      0.6
 // @description  Script to copy UShop orders
 // @author       Alexandru Umaneț
 // @match        https://www.ushop.md/wp-admin/post.php?post=*
@@ -123,7 +123,7 @@
         "TL": "Telenești",
         "UN": "Ungheni"
     }
-
+    const lang = document.querySelector(".order_notes li:last-child p").textContent.trim().includes("Оплата") ? "Ru" : "Ro";
     const email = document.querySelector("._billing_email_field input").getAttribute("value");
     const cityCode = document.querySelector("._billing_state_field input").getAttribute("value");
     const address = document.querySelector("._billing_address_1_field input").getAttribute("value");
@@ -131,7 +131,8 @@
     phone = '0' + phone.replace(/^\s*\+?(373)? ?0?/, "");
     phone = phone.slice(0, 4) + ' ' + phone.slice(4, 6) + ' ' + phone.slice(6);
     const city = statesMap[cityCode];
+    const gender = firstName.endsWith('a') ? "W" : "M";
 
-    const customerInfo = `${email}\t${firstName}\t${lastName}\t${date}\t\t\t${city}\t\t${address}\tSubscribed\t${phone}`;
+    const customerInfo = `${email}\t${firstName}\t${lastName}\t${date}\t${lang}\t${gender}\t${city}\t\t${address}\tSubscribed\t${phone}`;
     createCopyBtn("Copy Customer Info", customerInfo);
 })();
