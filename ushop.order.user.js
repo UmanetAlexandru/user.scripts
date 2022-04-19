@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UShop Script
 // @namespace    https://github.com/UmanetAlexandru/user.scripts
-// @version      0.7
+// @version      0.8
 // @description  Script to copy UShop orders
 // @author       Alexandru Umaneț
 // @match        https://www.ushop.md/wp-admin/post.php?post=*
@@ -115,9 +115,9 @@ const app = async () => {
             addUsSize(itemEl, prodBrand, gender);
         }
         const supplier = supplierMap[supplierPrefix];
-        const price = itemEl.querySelector(".item_cost bdi").childNodes[0].textContent
+        let price = +itemEl.querySelector(".item_cost bdi").childNodes[0].textContent
             .replace(",00 ", "").replace(".", "") + shippingPerItem;
-        console.log(size);
+        price = Math.round(price * 100) / 100;
         orderInfo += `${number}\t${date}\t\t${prodBrand}\t${productName}\t${size}\t${price}\t${supplier}\t${fullName}\n`;
     });
     createCopyBtn("Copy Order Info", orderInfo);
