@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UShop Script
 // @namespace    https://github.com/UmanetAlexandru/user.scripts
-// @version      0.8
+// @version      1
 // @description  Script to copy UShop orders
 // @author       Alexandru Umaneț
 // @match        https://www.ushop.md/wp-admin/post.php?post=*
@@ -75,7 +75,7 @@ const addUsSize = (prodEl, brand, gender) => {
     let usSize = eurSizes[key];
     if (!usSize) {
         key = `${gender}_NIKE_${eurSize}`.toUpperCase();
-        usSize = eurSize[key];
+        usSize = eurSizes[key];
     }
     sizeEl.textContent = `${eurSize}\t(${usSize})`;
 }
@@ -111,7 +111,8 @@ const app = async () => {
         const supplierPrefix = skuEl.childNodes[1].textContent.trim().split("_")[0];
         const size = itemEl.querySelector(".view p").textContent.trim();
         if (prodBrand !== "Puma" && shoesCategories.find(c => productName.includes(c))) {//ADDING US SIZE
-            const gender = productName.includes("Băieţi") ? "MEN" : "WOMEN";
+            const normalizedName = productName.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+            const gender = normalizedName.includes("Barbati") ? "MEN" : "WOMEN";
             addUsSize(itemEl, prodBrand, gender);
         }
         const supplier = supplierMap[supplierPrefix];
@@ -130,7 +131,8 @@ const app = async () => {
     let phone = document.getElementById("_billing_phone").getAttribute("value");
     phone = '0' + phone.replace(/^\s*\+?(373)? ?0?/, "");
     phone = phone.slice(0, 4) + ' ' + phone.slice(4, 6) + ' ' + phone.slice(6);
-    const gender = firstName.endsWith('a') ? "W" : "M";
+    const lastNameChar = firstName.substring(firstName.length - 1);
+    const gender = lastNameChar === 'a' || lastNameChar === 'а' ? "W" : "M";
 
     const customerInfo = `${email}\t${firstName}\t${lastName}\t${date}\t${lang}\t${gender}\t${city}\t\t${address}\tSubscribed\t${phone}`;
     createCopyBtn("Copy Customer Info", customerInfo);
