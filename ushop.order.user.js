@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UShop Script
 // @namespace    https://github.com/UmanetAlexandru/user.scripts
-// @version      1
+// @version      1.1
 // @description  Script to copy UShop orders
 // @author       Alexandru Umaneț
 // @match        https://www.ushop.md/wp-admin/post.php?post=*
@@ -71,6 +71,7 @@ const eurSizes = await getJSON(prefix + "eur_sizes.json");
 const addUsSize = (prodEl, brand, gender) => {
     const sizeEl = prodEl.querySelector("div.view p");
     const eurSize = sizeEl.textContent.trim();
+    brand = brand.replace("'", '');
     let key = `${gender}_${brand}_${eurSize}`.toUpperCase();
     let usSize = eurSizes[key];
     if (!usSize) {
