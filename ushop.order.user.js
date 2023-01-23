@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UShop Script
 // @namespace    https://github.com/UmanetAlexandru/user.scripts
-// @version      1.1
+// @version      1.3
 // @description  Script to copy UShop orders
 // @author       Alexandru Umaneț
 // @match        https://www.ushop.md/wp-admin/post.php?post=*
@@ -10,7 +10,7 @@
 // @downloadURL  https://github.com/UmanetAlexandru/user.scripts/raw/master/ushop.order.user.js
 // @grant        none
 // @run-at       document-end
-// @require      file://D:\projects\Personal\Scripts\ushop.order.user.js
+// @require      file://D:\projects\personal\user.scripts\ushop.order.user.js
 // ==/UserScript==
 const prefix = "https://raw.githubusercontent.com/UmanetAlexandru/user.scripts/master/resources/";
 
@@ -54,21 +54,29 @@ const skuFuncMap = {
     "SPD": (sku) => "https://www.sportsdirect.com/searchresults?descriptionfilter=" + sku.replace("SPD_", ""),
     "JNB": (sku) => {
         const s = sku.split("_");
-        return `https://www.joesnewbalanceoutlet.com/product/${s[1]}/${s[2]}`;
-    }
+        return `https://www.joesnewbalanceoutlet.com/pd/${s[1]}.html?dwvar_${s[1]}_style=${s[2]}`;
+    },
+    "NIKE": (sku) => sku.replace("NIKE_", "https://www.nike.com/").replaceAll("_", "/")
 }
 
 const addLinkToProd = (el) => {
     const sku = el.childNodes[1].textContent.trim();
-    const link = skuFuncMap[sku.split("_")[0]](sku);
-    el.onclick = () => window.open(link, "_blank");
-    el.classList.add("page-title-action");
-    el.style.cssText += 'display:block;width:fit-content;padding-bottom:0;padding-top:0;margin-left:0;';
+    let supplierPrefix = sku.split("_")[0];
+    let skuFunc = skuFuncMap[supplierPrefix];
+    if (skuFunc) {
+        const link = skuFunc(sku);
+        el.onclick = () => window.open(link, "_blank");
+        el.classList.add("page-title-action");
+        el.style.cssText += 'display:block;width:fit-content;padding-bottom:0;padding-top:0;margin-left:0;';
+    } else {
+        console.error(`No Provider for prefix: [${supplierPrefix}]`);
+    }
 }
 
 const eurSizes = await getJSON(prefix + "eur_sizes.json");
 
 const addUsSize = (prodEl, brand, gender) => {
+    console.log(brand, gender)
     const sizeEl = prodEl.querySelector("div.view p");
     const eurSize = sizeEl.textContent.trim();
     brand = brand.replace("'", '');
@@ -81,10 +89,12 @@ const addUsSize = (prodEl, brand, gender) => {
     sizeEl.textContent = `${eurSize}\t(${usSize})`;
 }
 
-const shoesCategories = ["Bocanci/Cizme", "Ghete", "Pantofi/Loafers", "Sandale/Șlapi"]
-
+const shoesCategories = ["Bocanci/Cizme", "Ghete", "Pantofi/Loafers", "Sandale/Șlapi", "Încălțăminte"]
 
 const app = async () => {
+    if (document.querySelector(".woocommerce-layout__header-wrapper h1").textContent !== "Edit Order") {
+        return;
+    }
     const firstName = document.getElementById("_billing_first_name").getAttribute("value");
     const lastName = document.getElementById("_billing_last_name").getAttribute("value");
     const fullName = `${firstName} ${lastName}`;
@@ -141,8 +151,5 @@ const app = async () => {
 
 (() => {
     'use strict';
-    if (document.querySelector(".woocommerce-layout__header-wrapper h1").textContent !== "Edit Order") {
-        return;
-    }
-    window.addEventListener('load', app, false);
+    window.addEventListener('load', app(), false);
 })();
