@@ -76,7 +76,6 @@ const addLinkToProd = (el) => {
 const eurSizes = await getJSON(prefix + "eur_sizes.json");
 
 const addUsSize = (prodEl, brand, gender) => {
-    console.log(brand, gender)
     const sizeEl = prodEl.querySelector("div.view p");
     const eurSize = sizeEl.textContent.trim();
     brand = brand.replace("'", '');
